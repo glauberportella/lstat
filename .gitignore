@@ -1,0 +1,7 @@
+lstat
+*.dSYM
+*.c.swp
+*.h.swp
+liblstat.a
+liblstat.so
+obj/
