@@ -147,7 +147,7 @@ double stat_median(const lstat_dataset_t* dataset) {
     median = (dataset->data[n] + dataset->data[m]) / 2;
   } else {
     // impar (odd)
-    size_t n = ceil((double)dataset->size / 2);
+    size_t n = ceil((double)dataset->size / 2) - 1;
     median = dataset->data[n];
   }
 
@@ -196,6 +196,10 @@ double stat_mode(const lstat_dataset_t* dataset) {
     freqs = NULL;
     return NAN;
   }
+
+  // debug: frequencias
+  print_kv(freqs, dataset->size, "---------\nFREQUENCIAS:\n"); 
+  // fim debug
 
   lstat_kv_t max = lstat_max_frequency(freqs, dataset->size);
   double mode = *(double*)max.key;

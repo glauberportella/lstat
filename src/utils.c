@@ -1,7 +1,41 @@
 #include "utils.h"
 #include <string.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+
+void print_dataset(const lstat_dataset_t* dataset, const char* label) {
+  if (label != NULL) {
+    printf("[%s]: {\n", label);
+  } else {
+    printf("{\n");
+  }
+
+  // size field
+  printf("\t.size = %zu,\n", dataset->size);
+
+  // data field
+  printf("\t.data = [");
+  char* sep = ", ";
+  for (size_t i = 0; i < dataset->size; i++) {
+    if ((i + 1) == dataset->size) {
+      sep = "";
+    }
+    printf("%f%s", dataset->data[i], sep);
+  }
+
+  printf("]\n}\n");
+}
+
+void print_kv(const lstat_kv_t* kv, const size_t len, const char* label) {
+  if (label != NULL) {
+    printf("%s", label);
+  }
+
+  for (size_t i = 0; i < len; i++) {
+    printf("kv[%zu]: { key: %f, value: %f }\n", i, *(double*)kv[i].key, *(double*)kv[i].value);
+  }
+}
 
 int lstat_compare(const void* a, const void* b) {
   double x = *(const double*)a;

@@ -9,7 +9,7 @@ ifeq ($(OPENMP),1)
   LDLIBS += -lm -lpthread
 endif
 
-LIB_SRC = src/utils.c src/descritive.c
+LIB_SRC = src/utils.c src/descritive.c src/hashmap.c
 LIB_NAME = lstat
 
 OBJ_DIR  = obj

@@ -4,6 +4,10 @@
 #include "types.h"
 #include <stdbool.h>
 
+void print_dataset(const lstat_dataset_t* dataset, const char* label);
+
+void print_kv(const lstat_kv_t* kv, const size_t len, const char* label);
+
 /**
  * @brief Quick sort for dataset data
  * @param const lstat_dataset_t* dataset
