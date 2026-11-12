@@ -24,6 +24,9 @@ typedef struct {
   size_t size;
 } hashmap_t;
 
+hashmap_t* hashmap_init(size_t size);
+void hashmap_destroy(hashmap_t* hashmap);
+
 /**
  * @brief Função de hash para nosso little hashmap
  * 
@@ -48,7 +51,7 @@ bool hashmap_set(hashmap_t* hashmap, void* key, void* value);
  * 
  * @param hashmap 
  * @param key 
- * @return hashmap_item_t* 
+ * @return hashmap_item_t
  */
 hashmap_item_t* hashmap_get(hashmap_t* hashmap, const void* key);
 

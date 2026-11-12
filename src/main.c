@@ -1,14 +1,15 @@
 #include <stdio.h>
 #include <assert.h>
 
+#include "hashmap.h"
 #include "lstat.h"
 
 void test_descritive_return_double(
-    const lstat_dataset_t* dataset, 
-    const char* funcname, 
-    double (*functotest)(const lstat_dataset_t*), 
-    double expected
-    ) {
+  const lstat_dataset_t* dataset, 
+  const char* funcname, 
+  double (*functotest)(const lstat_dataset_t*), 
+  double expected
+) {
   printf("-- TEST: test_%s --\n", funcname);
 
   double value = functotest(dataset);
@@ -20,11 +21,11 @@ void test_descritive_return_double(
 }
 
 void test_descritive_return_size_t(
-    const lstat_dataset_t* dataset, 
-    const char* funcname, 
-    size_t (*functotest)(const lstat_dataset_t*), 
-    size_t expected
-    ) {
+  const lstat_dataset_t* dataset, 
+  const char* funcname, 
+  size_t (*functotest)(const lstat_dataset_t*), 
+  size_t expected
+) {
   printf("-- TEST: test_%s --\n", funcname);
 
   size_t value = functotest(dataset);
@@ -36,43 +37,51 @@ void test_descritive_return_size_t(
 }
 
 void test_hashmap() {
-  hashmap_t h = {0};
+  hashmap_t* h = hashmap_init(0);
+  assert(h != NULL);
 
-  printf("Hashmap size: %zu\n", h.size);
-  printf("Add 1 key and value...");
-  double k1 = 20.50;
-  size_t v1 = 1;
-  bool success = hashmap_set(&h, &k1, &v1);
-  printf("Sucess: %s\n", success ? "Yes" : "No");
-  printf("Hashmap size: %zu\n", h.size);
+  printf("Hashmap size: %zu\n\n", h->size);
+  
+  bool success = true;
+  size_t v = 1;
+  for (size_t i = 0; i < 5; i++) {
+    double k = i > 0 ? (double)i / 10 : 10.50;
+    printf("Add key %f and value %zu\n", k, v);
+    success = success && hashmap_set(h, &k, &v);
+  }
+  
+  printf("\nSucess: %s\n", success ? "Yes" : "No");
+  printf("Hashmap size: %zu\n", h->size);
+
+  hashmap_destroy(h);
 }
 
 int main() {
   /*
-     const double data1[5] = {1.0, 2.0, 3.0, 4.0, 5.0};
-     const double data2[6] = {1.0, 1.0, 2.0, 3.0, 4.0, 4.0};
-     const double data3[3] = {120.50, 45.90, 10.30};
+  const double data1[5] = {1.0, 2.0, 3.0, 4.0, 5.0};
+  const double data2[6] = {1.0, 1.0, 2.0, 3.0, 4.0, 4.0};
+  const double data3[3] = {120.50, 45.90, 10.30};
 
-     lstat_dataset_t dataset1 = {
-     .data = data1,
-     .size = 5
-     };
+  lstat_dataset_t dataset1 = {
+  .data = data1,
+  .size = 5
+  };
 
-     lstat_dataset_t dataset2 = {
-     .data = data2,
-     .size = 6
-     };
+  lstat_dataset_t dataset2 = {
+  .data = data2,
+  .size = 6
+  };
 
-     lstat_dataset_t dataset3 = {
-     .data = data3,
-     .size = 3
-     };
+  lstat_dataset_t dataset3 = {
+  .data = data3,
+  .size = 3
+  };
 
-     printf("LSTAT - Little Statistical Library\n");
+  printf("LSTAT - Little Statistical Library\n");
 
-     print_dataset(&dataset1, "dataset1");
-     print_dataset(&dataset2, "dataset2");
-     print_dataset(&dataset3, "dataset3");
+  print_dataset(&dataset1, "dataset1");
+  print_dataset(&dataset2, "dataset2");
+  print_dataset(&dataset3, "dataset3");
 
   // -- test: stat_sum()
   test_descritive_return_double(&dataset1, "stat_sum", stat_sum, 15);
