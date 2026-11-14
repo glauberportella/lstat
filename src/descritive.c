@@ -172,44 +172,29 @@ double stat_mode(const lstat_dataset_t* dataset) {
     return NAN;
   }
 
-  // [1, 3, 1, 1, 2, 4, 2]
-  // montar array de lstat_kv_t com key = numero e value = frequencia
-  lstat_kv_t* freqs = (lstat_kv_t*)calloc(dataset->size, sizeof(lstat_kv_t));
+  size_t freqs_size;
+  lstat_freq_t* freqs = lstat_freq_create(dataset, &freqs_size);
   if (freqs == NULL) {
     errno = EALLOCATION;
     return NAN;
   }
 
-  // constroi dict de frequencias
-  bool success = true;
-  for (size_t i = 0; i < dataset->size; i++) {
-    success = success && lstat_frequency_upsert(freqs, dataset->size, (void*)&dataset->data[i]);
-  }
-
-  if (!success) {
-    for (size_t i = 0; i < dataset->size; i++) {
-      if (freqs[i].value != NULL) {
-        free(freqs[i].value);
-      }
-    }
-    free(freqs);
-    freqs = NULL;
+  if (freqs_size < 2) {
+    lstat_freq_destroy(freqs);
     return NAN;
   }
 
-  // debug: frequencias
-  print_kv(freqs, dataset->size, "---------\nFREQUENCIAS:\n"); 
-  // fim debug
+  double freq_mode = freqs[0].freq;
+  double mode = freqs[0].value;
 
-  lstat_kv_t max = lstat_max_frequency(freqs, dataset->size);
-  double mode = *(double*)max.key;
-
-  for (size_t i = 0; i < dataset->size; i++) {
-    if (freqs[i].value != NULL) {
-      free(freqs[i].value);
+  for (size_t i = 0; i < freqs_size; i++) {
+    if (freqs[i].freq > freq_mode) {
+      freq_mode = freqs[i].freq;
+      mode = freqs[i].value;
     }
   }
-  free(freqs);
+
+  lstat_freq_destroy(freqs);
 
   return mode;
 }

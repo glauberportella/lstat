@@ -51,8 +51,8 @@ typedef struct {
 } lstat_online_pair_t;
 
 typedef struct {
-  void* key;
-  void* value;
-} lstat_kv_t;
+  double value;
+  double freq;
+} lstat_freq_t;
 
 #endif

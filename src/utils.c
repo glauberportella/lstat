@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include <errno.h>
 
 void print_dataset(const lstat_dataset_t* dataset, const char* label) {
   if (label != NULL) {
@@ -27,16 +28,6 @@ void print_dataset(const lstat_dataset_t* dataset, const char* label) {
   printf("]\n}\n");
 }
 
-void print_kv(const lstat_kv_t* kv, const size_t len, const char* label) {
-  if (label != NULL) {
-    printf("%s", label);
-  }
-
-  for (size_t i = 0; i < len; i++) {
-    printf("kv[%zu]: { key: %f, value: %f }\n", i, *(double*)kv[i].key, *(double*)kv[i].value);
-  }
-}
-
 int lstat_compare(const void* a, const void* b) {
   double x = *(const double*)a;
   double y = *(const double*)b;
@@ -56,53 +47,41 @@ bool lstat_dataset_qsort(const lstat_dataset_t* dataset, double* sorted) {
   return true;
 }
 
-lstat_kv_t lstat_max_frequency(const lstat_kv_t* kv, size_t nel) {
-  if (kv == NULL) {
-    return (lstat_kv_t){0};
+lstat_freq_t* lstat_freq_create(const lstat_dataset_t* dataset, size_t* freq_size) {
+  if (dataset == NULL) {
+    return NULL;
+  }
+  
+  lstat_freq_t* freqs = (lstat_freq_t*)calloc(dataset->size, sizeof(lstat_freq_t));
+
+  if (freqs == NULL) {
+    errno = EALLOCATION;
+    return NULL;
   }
 
-  // encontra maxima frequencia
-  lstat_kv_t max = kv[0];
-  for (size_t i = 1; i < nel; i++) {
-    double vi = *(double*)kv[i].value;
-    double maxv = *(double*)max.value;
-    if (vi > maxv) {
-      max = kv[i];
+  *freq_size = 1;
+  for (size_t i = 0; i < dataset->size; i++) {
+    int count_value = 1;
+    for (size_t j = i + 1; j < dataset->size; j++) {
+      if (dataset->data[i] == dataset->data[j]) {
+        count_value++;
+      } else {
+        (*freq_size)++;
+      }
     }
+
+    freqs[*freq_size - 1] = (lstat_freq_t){
+      .value = dataset->data[i],
+      .freq = count_value 
+    };
   }
 
-  return max;
+  return freqs;
 }
 
-bool lstat_frequency_upsert(lstat_kv_t* kv, size_t kv_nel, void* value) {
-  // kv tem como key = numero e value = frequencia
-  // se valor ja existe em kv incrementa frequencia
-
-  // verificamos se o valor existe se existe somamos 1 na freqnecia
-  // se nao existe adicionamos no kv com frequencia 1
-  for (size_t i = 0; i < kv_nel; i++) {
-    if (kv[i].key == value) {
-      size_t count = *(size_t*)kv[i].value;
-      count++;
-      *(size_t*)kv[i].value = count;
-      return true;
-    }
+void lstat_freq_destroy(lstat_freq_t* freq) {
+  if (freq != NULL) {
+    free(freq);
   }
-
-  // procurar primeiro valor NULL para alocar o novo valor no kv
-  for (size_t i = 0; i < kv_nel; i++) {
-    if (kv[i].key == NULL) {
-      // Aloca memória para o contador inicial (1)
-      size_t *new_count = malloc(sizeof(size_t));
-      if (new_count == NULL) return false;
-      *new_count = 1;
-
-      // Insere na struct
-      kv[i].key = value;
-      kv[i].value = (void*)new_count;
-      return true;
-    }
-  }
-
-  return false;
 }
+

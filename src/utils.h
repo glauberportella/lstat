@@ -6,8 +6,6 @@
 
 void print_dataset(const lstat_dataset_t* dataset, const char* label);
 
-void print_kv(const lstat_kv_t* kv, const size_t len, const char* label);
-
 /**
  * @brief Quick sort for dataset data
  * @param const lstat_dataset_t* dataset
@@ -24,8 +22,8 @@ bool lstat_dataset_qsort(const lstat_dataset_t* dataset, double* sorted);
  */
 int lstat_compare(const void* a, const void* b);
 
-bool lstat_frequency_upsert(lstat_kv_t* kv, size_t kv_nel, void* value);
+lstat_freq_t* lstat_freq_create(const lstat_dataset_t* dataset, size_t* freq_size);
 
-lstat_kv_t lstat_max_frequency(const lstat_kv_t* kv, size_t nel);
+void lstat_freq_destroy(lstat_freq_t* freq);
 
 #endif
